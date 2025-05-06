@@ -128,7 +128,7 @@ MIT License
 - **Frontend** – Samartha Bhatt, Anshika Bharadwaj
 - **Security & OSINT** – Sarist Pandey, Anshika Bharadwaj
 - **UI/UX** –  Sharad Pandey, Anshika Bharadwaj, Suhani Sharma
-- **Content & Research** – Samartha Bhatt, Anshika Bharadwaj
+- **Content & Research** – Samartha Bhatt, Suhani Sharma
 
 ---
 
