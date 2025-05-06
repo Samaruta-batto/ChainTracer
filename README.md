@@ -48,11 +48,89 @@ The current version focuses on **transaction flow analysis** to detect and repor
 
 - **Programming Language**: Python
 - **Blockchain Interaction**: Web3.py, Etherscan API
-- **Database**: MongoDB (optional for storing transaction history)
+- **Database**: SQL
 - **Frontend (planned)**: React.js
 - **AI Integration (planned)**: TensorFlow / PyTorch + OSINT Tools
 
 ---
 
 ## 📈 Architecture
+```
+User Input (Wallet/Txn Hash)
+↓
+Blockchain Scraper (via Web3/API)
+↓
+Transaction Flow Mapping Engine
+↓
+End Receiver Identification
+↓
+[Future Scope]
+→ AI-based Pattern Detection
+→ De-Anonymization & Scoring
+```
+
+---
+
+## ✅ Current Capabilities
+
+- Trace Ethereum-based transactions
+- Detect the end receiver address in a transactional chain
+- Basic risk flags for suspicious paths
+
+---
+
+## 🔍 Future Scope
+
+- Cross-chain analysis (BTC, BNB, Monero)
+- Mixer & tumbler detection logic
+- Real-time monitoring dashboard
+- Integration with law enforcement case systems
+
+---
+
+## ⚠️ Challenges
+
+- Obfuscation via mixers and privacy coins
+- Jurisdictional access to exchange KYC data
+- Real-time scalability under large datasets
+
+---
+
+## 📚 References
+
+- [Chainalysis Crypto Crime Report](https://www.chainalysis.com)
+- [FATF Virtual Assets Guidance](https://www.fatf-gafi.org)
+- [UNODC Global Drug Report](https://www.unodc.org)
+- [MIT Darknet Cryptocurrency Research](https://www.media.mit.edu)
+
+---
+
+## 🤝 Contribution
+
+We welcome contributions, especially on:
+
+- Frontend visualization
+- AI pattern detection modules
+- OSINT integrations
+
+---
+
+## 📜 License
+
+MIT License
+
+---
+
+## 👥 Team SEMPER INVICTA
+
+- **Blockchain Lead** – Samartha Bhatt  
+- **Backend Developers** –  Suryansh Sharan, Samartha Bhatt
+- **Frontend** – Samartha Bhatt, Anshika Bharadwaj
+- **Security & OSINT** – Sarist Pandey, Anshika Bharadwaj
+- **UI/UX** –  Sharad Pandey, Anshika Bharadwaj, Suhani Sharma
+- **Content & Research** – Samartha Bhatt, Anshika Bharadwaj
+
+---
+
+> _“Cryptocurrency may hide identities, but our intelligence will reveal the truth.”_
 
