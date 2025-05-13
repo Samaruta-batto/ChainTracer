@@ -1,1 +1,34 @@
 
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Ethereum Web3 Tool</title>
+</head>
+<body>
+    <h1> Ethereum Web3 Dashboard</h1>
+
+    <h2>1️⃣ Check ETH Balance</h2>
+    <form action="/balance" method="post">
+        <input type="text" name="address" placeholder="Enter Ethereum Address" required>
+        <button type="submit">Get Balance</button>
+    </form>
+
+    <h2>2️⃣ Get Block Info</h2>
+    <form action="/block" method="post">
+        <input type="text" name="block_number" placeholder="Block number or 'latest'" required>
+        <button type="submit">Get Block</button>
+    </form>
+
+    <h2>3️⃣ Get Transaction Info</h2>
+    <form action="/transaction" method="post">
+        <input type="text" name="tx_hash" placeholder="Transaction hash" required>
+        <button type="submit">Get Transaction</button>
+    </form>
+
+    {% if result %}
+        <hr>
+        <h2>📊 Result:</h2>
+        <div style="white-space: pre-wrap;">{{ result|safe }}</div>
+    {% endif %}
+</body>
+</html>
