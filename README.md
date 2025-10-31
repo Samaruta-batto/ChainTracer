@@ -1,136 +1,222 @@
-# ChainTracer
+# 🔍 ChainTracer
 
-# 🔍 Cryptocurrency Transaction Tracing Tool
+**ChainTracer** is a production-grade blockchain forensics and cryptocurrency transaction tracing platform.  
+It provides **real-time transaction analysis**, **automated risk assessment**, and **end-receiver identification** for law enforcement and security teams investigating illicit blockchain activities.
+
+![Python](https://img.shields.io/badge/Python-3.8+-blue)
+![TypeScript](https://img.shields.io/badge/TypeScript-82.3%25-blue)
+![Flask](https://img.shields.io/badge/Flask-2.0+-green)
+![Status](https://img.shields.io/badge/Status-Production%20Ready-success)
+![License](https://img.shields.io/badge/License-MIT-green)
+
+---
 
 ## 🚀 Overview
 
-This project is a blockchain analytics tool developed for the **Narcotics Control Bureau (NCB)** to trace cryptocurrency transactions associated with drug trafficking and other illicit activities. The tool identifies the **end receiver** of crypto funds, providing actionable intelligence to law enforcement agencies.
+Traditional financial tracking methods fail to address the complexity and anonymity of blockchain transactions used in illicit activities.  
+**ChainTracer** eliminates this gap by leveraging **Web3.py integration with Ethereum mainnet** for real-time transaction analysis, **automated risk scoring algorithms**, and **forensic-grade event parsing** to trace cryptocurrency flows across complex wallet chains.
 
-> 🛡️ Developed by Team SEMPER INVICTA | Problem ID: 11 | PS Category: Software | Team ID: 46
-
----
-
-## 🎯 Problem Statement
-
-Cryptocurrencies are inherently **secure and anonymous**, making them ideal for unlawful purposes such as:
-
-- Drug trafficking
-- Human trafficking
-- Weapons trade
-- Online scams
-- Terrorist financing
-
-Illicit actors exploit the pseudonymous nature of blockchain to mask financial trails. Traditional tracking methods fail to keep up with the complexity and volume of transactions. Our tool aims to trace the **transaction chain** and identify the **final recipient**, forming the basis for further AI-based investigation in future iterations.
+> 🛡️ **Developed for:** India's Narcotics Control Bureau (NCB) | **Problem ID:** 11 | **Team:** SEMPER INVICTA
 
 ---
 
-## 💡 Proposed Solution
+## ✨ Key Features
 
-The current version focuses on **transaction flow analysis** to detect and report the **end-chain wallet** of a given transaction path. Future versions will include:
+### ✅ Currently Implemented
 
-- AI-driven pattern recognition
-- Behavioral wallet analysis
-- De-anonymization via OSINT and clustering
+- 🔗 **Real-time Blockchain Integration:** Direct Ethereum mainnet access via Web3.py and Infura API
+- 🎯 **Automated Risk Assessment:** Multi-factor scoring algorithm (0–100 scale) analyzing transaction patterns
+- 🧠 **Smart Contract Detection:** Bytecode analysis to distinguish contracts from regular wallets
+- 💰 **ERC-20 Token Tracking:** Event log parsing to trace token transfers using keccak signatures
+- 📊 **Transaction Chain Tracing:** Identify end receivers through multi-hop wallet analysis
+- 🛡️ **Forensic Metadata Extraction:** Gas analysis, nonce tracking, block confirmation, timestamp correlation
+- 🌐 **RESTful API:** 4 production endpoints with CORS support and comprehensive error handling
+- ⚡ **TypeScript Frontend:** Modern React architecture with type-safe data models
 
----
+### 🔮 Planned Enhancements
 
-## 🧠 Features
-
-- 🧾 Trace crypto transactions through wallets and contracts  
-- 🔗 Identify the end recipient in a transaction chain  
-- 📊 Visual representation of fund flow (future scope)  
-- 🤖 AI anomaly detection (planned)  
-- 🕵️‍♂️ User de-anonymization support (future integration)
-
----
-
-## ⚙️ Tech Stack
-
-- **Programming Language**: Python
-- **Blockchain Interaction**: Web3.py, Etherscan API
-- **Database**: SQL
-- **Frontend (planned)**: React.js
-- **AI Integration (planned)**: TensorFlow / PyTorch + OSINT Tools
+- 🔄 **Interactive Transaction Graphs:** D3.js/React Flow visualization of fund flows
+- 🔄 **Multi-Chain Support:** Bitcoin, Polygon, BSC, and cross-chain tracking
+- 🔄 **AI Pattern Recognition:** ML-based anomaly detection for suspicious behavior
+- 🔄 **Mixer/Tumbler Detection:** Identify privacy tool usage in transaction chains
+- 🔄 **OSINT Integration:** Correlate on-chain data with threat intelligence sources
+- 🔄 **Database Persistence:** PostgreSQL caching for repeat queries
 
 ---
 
-## 📈 Architecture
+## 🧭 Tech Stack
+
+| Layer | Technologies |
+|-------|---------------|
+| **Backend** | Python 3.8+, Flask 2.0+, Web3.py, Flask-CORS |
+| **Frontend** | TypeScript, React 18, Vite, Tailwind CSS, ESLint |
+| **Blockchain** | Ethereum Mainnet, Infura API, Etherscan API |
+| **Security** | Environment variables, Input validation, CORS policies |
+| **Data Processing** | JSON serialization, Event log parsing, Gas analysis |
+
+---
+
+## 🏗️ System Architecture
+
+```text
+┌─────────────────────────────────┐
+│ React Frontend                  │
+│ (TypeScript + Tailwind CSS)     │
+│ Port 5173                       │
+└───────────┬─────────────────────┘
+            │ HTTP/REST API Calls
+            ▼
+┌─────────────────────────────────┐
+│ Flask Backend                   │
+│ (Python + Web3.py)              │
+│ Port 3000                       │
+└───────────┬─────────────────────┘
+            │ Web3 Provider
+            ▼
+┌─────────────────────────────────┐
+│ Infura Gateway                  │
+│ (Ethereum Node Access)          │
+└───────────┬─────────────────────┘
+            │ JSON-RPC
+            ▼
+┌─────────────────────────────────┐
+│ Ethereum Blockchain             │
+│ (Mainnet - Live Data)           │
+└─────────────────────────────────┘
 ```
-User Input (Wallet/Txn Hash)
-↓
-Blockchain Scraper (via Web3/API)
-↓
-Transaction Flow Mapping Engine
-↓
-End Receiver Identification
-↓
-[Future Scope]
-→ AI-based Pattern Detection
-→ De-Anonymization & Scoring
+
+### 🧮 Risk Scoring Algorithm
+
+| Criteria | Points |
+|-----------|---------|
+| Contract Interaction | +15 |
+| Transaction > 100 ETH | +20 |
+| Transaction > 10 ETH | +10 |
+| Failed Transaction | +30 |
+| **Maximum Score** | **100** |
+
+---
+
+## 📁 Project Structure
+
+```text
+ChainTracer/
+├── src/                     # TypeScript/React frontend
+│   ├── components/          # UI components
+│   ├── contexts/            # State management
+│   ├── services/            # API calls
+│   ├── pages/               # UI pages
+│   ├── types/               # TypeScript interfaces
+│   ├── App.tsx              # Root component
+│   └── main.tsx             # Entry point
+├── app.py                   # Flask backend entry
+├── templates/               # HTML templates
+├── .env                     # Environment variables
+├── package.json             # Node dependencies
+├── pyproject.toml           # Python dependencies
+├── tailwind.config.js       # Tailwind config
+└── README.md                # This file
 ```
 
 ---
 
-## ✅ Current Capabilities
+## ⚙️ Setup Instructions
 
-- Trace Ethereum-based transactions
-- Detect the end receiver address in a transactional chain
-- Basic risk flags for suspicious paths
+### Prerequisites
+- Python 3.8+
+- Node.js 16+
+- npm or yarn
+- Infura API key ([Get one here](https://infura.io/))
 
----
+### Installation
 
-## 🔍 Future Scope
+**Clone Repository**
+```bash
+git clone https://github.com/Samaruta-batto/ChainTracer.git
+cd ChainTracer
+```
 
-- Cross-chain analysis (BTC, BNB, Monero)
-- Mixer & tumbler detection logic
-- Real-time monitoring dashboard
-- Integration with law enforcement case systems
+**Setup Backend**
+```bash
+python -m venv venv
+source venv/bin/activate  # Windows: venv\Scripts\activate
+pip install flask flask-cors web3 python-dotenv
+```
 
----
+**Environment Variables**
+```bash
+INFURA_API_KEY=your_infura_api_key
+PORT=3000
+```
 
-## ⚠️ Challenges
+**Run Backend**
+```bash
+python app.py
+```
 
-- Obfuscation via mixers and privacy coins
-- Jurisdictional access to exchange KYC data
-- Real-time scalability under large datasets
-
----
-
-## 📚 References
-
-- [Chainalysis Crypto Crime Report](https://www.chainalysis.com)
-- [FATF Virtual Assets Guidance](https://www.fatf-gafi.org)
-- [UNODC Global Drug Report](https://www.unodc.org)
-- [MIT Darknet Cryptocurrency Research](https://www.media.mit.edu)
-
----
-
-## 🤝 Contribution
-
-We welcome contributions, especially on:
-
-- Frontend visualization
-- AI pattern detection modules
-- OSINT integrations
+**Setup Frontend**
+```bash
+npm install
+npm run dev
+```
 
 ---
 
-## 📜 License
+## 🔌 API Endpoints
 
-MIT License
-
----
-
-## 👥 Team SEMPER INVICTA
-
-- **Blockchain Lead** – Samartha Bhatt  
-- **Backend Developers** –  Suryansh Sharan, Samartha Bhatt
-- **Frontend** – Samartha Bhatt, Anshika Bharadwaj
-- **Security & OSINT** – Sarist Pandey, Anshika Bharadwaj
-- **UI/UX** –  Sharad Pandey, Anshika Bharadwaj, Suhani Sharma
-- **Content & Research** – Samartha Bhatt, Suhani Sharma
+| Endpoint | Description |
+|-----------|--------------|
+| **GET /api/health** | Returns Web3 connection and chain ID |
+| **GET /api/transaction/<tx_hash>** | Fetch transaction details with risk score |
+| **GET /api/trace/<address_or_tx_hash>** | Trace complete transaction flow |
+| **GET /api/balance/<address>** | Fetch wallet balance in ETH |
 
 ---
 
-> _“Cryptocurrency may hide identities, but our intelligence will reveal the truth.”_
+## 👥 Development Team
 
+| Developer | GitHub | Role | Contributions |
+|-----------|--------|------|---------------|
+| **Samartha Bhatt** | [@Samaruta-batto](https://github.com/Samaruta-batto) | Lead Developer | Flask backend, Web3 integration, risk algorithms, smart contract detection, frontend structure |
+| **theOMEN203** | [@theOMEN203](https://github.com/theOMEN203) | Co-Developer | Frontend UI, testing, HTML templates |
+
+> 🧠 Originally developed for **India’s Narcotics Control Bureau (NCB)** as Team SEMPER INVICTA (Problem ID: 11).
+
+---
+
+## 🧩 Future Roadmap
+
+- [ ] D3.js transaction visualization
+- [ ] Multi-chain support (Bitcoin, Polygon, BSC)
+- [ ] AI/ML anomaly detection
+- [ ] Mixer/tumbler tracking
+- [ ] PostgreSQL data caching
+- [ ] API key authentication
+- [ ] WebSocket live monitoring
+
+---
+
+## 🔒 Security
+
+✅ Environment variables for secrets  
+✅ Input validation for hashes/addresses  
+✅ CORS policy enforcement  
+✅ Graceful error handling  
+🔄 Planned: JWT auth, rate limiting, HTTPS, request logging
+
+---
+
+## ⚠️ Challenges & Solutions
+
+| Challenge | Solution |
+|-----------|-----------|
+| Accurate blockchain data | Web3.py direct Infura mainnet access |
+| Smart contract detection | Bytecode analysis via `eth.get_code()` |
+| Balanced risk scoring | Weighted algorithm tuning |
+| ERC-20 tracking | Keccak signature parsing |
+
+
+---
+
+
+> **"Transparency through immutability. Justice through traceability."** 🔍
