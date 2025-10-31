@@ -27,19 +27,40 @@ The project has been successfully configured for the Replit environment:
 - 🕵️‍♂️ Cross-chain tracking capabilities
 
 ## Development
-The application currently uses mock data for demonstration purposes. The transaction tracer simulates API calls with a delay to show the user experience.
+The application now uses **real blockchain data** from Ethereum mainnet via Web3.py and Infura API. The backend API fetches actual transaction details, providing accurate information about transactions, gas fees, block numbers, and more.
 
 ## Technical Configuration
-- **Development Server**: Runs on 0.0.0.0:5000 with HMR enabled
-- **Host Configuration**: Configured to allow all hosts for Replit proxy compatibility
+- **Frontend Server**: Runs on 0.0.0.0:5000 with HMR enabled
+- **Backend API**: Flask REST API on localhost:3000
+- **Host Configuration**: Frontend configured to allow all hosts for Replit proxy compatibility
 - **Deployment**: Autoscale deployment with build and preview commands
+- **Blockchain Connection**: Connected to Ethereum mainnet via Infura
+
+## Architecture
+- **Frontend**: React + TypeScript + Vite (Port 5000)
+- **Backend**: Flask + Web3.py (Port 3000)
+- **API Communication**: REST API with JSON responses
+- **Data Source**: Ethereum blockchain via Infura RPC
 
 ## Recent Changes (Oct 31, 2025)
+### Initial Setup
 - Created index.html for Vite in root directory
 - Installed all npm dependencies
 - Configured Vite server to bind to 0.0.0.0:5000 with allowedHosts enabled
 - Set up frontend workflow on port 5000
 - Configured deployment settings for production
 
-## Backend Note
-There's a Flask backend file (`app.py`) in the repository that provides basic Web3 functionality for checking balances, blocks, and transactions. This is currently not integrated with the React frontend but could be used for future backend API integration.
+### Backend Integration
+- Installed Python 3.11 with Flask, Web3.py, and Flask-CORS
+- Rewrote app.py as a REST API backend with JSON endpoints
+- Created API endpoints: `/api/transaction/<tx_hash>`, `/api/trace/<address_or_tx>`, `/api/balance/<address>`, `/api/health`
+- Set up backend workflow on port 3000
+- Created API service layer in frontend (`src/services/api.ts`)
+- Updated TransactionTracer component to fetch real blockchain data
+- Added error handling and loading states for API calls
+
+## API Endpoints
+- **GET /api/health** - Check API status and Web3 connection
+- **GET /api/transaction/<tx_hash>** - Get detailed transaction information
+- **GET /api/trace/<address_or_tx>** - Trace transaction chain (currently returns single transaction)
+- **GET /api/balance/<address>** - Get ETH balance for an address

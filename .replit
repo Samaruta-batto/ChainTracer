@@ -17,6 +17,10 @@ author = "agent"
 task = "workflow.run"
 args = "frontend"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "backend"
+
 [[workflows.workflow]]
 name = "frontend"
 author = "agent"
@@ -29,13 +33,30 @@ waitForPort = 5000
 [workflows.workflow.metadata]
 outputType = "webview"
 
+[[workflows.workflow]]
+name = "backend"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python app.py"
+waitForPort = 3000
+
+[workflows.workflow.metadata]
+outputType = "console"
+
+[[ports]]
+localPort = 3000
+externalPort = 3000
+exposeLocalhost = true
+
 [[ports]]
 localPort = 5000
 externalPort = 80
 
 [[ports]]
-localPort = 46287
-externalPort = 3000
+localPort = 42533
+externalPort = 3001
 
 [deployment]
 deploymentTarget = "autoscale"

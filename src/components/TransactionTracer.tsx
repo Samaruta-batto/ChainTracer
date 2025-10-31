@@ -1,26 +1,35 @@
 import React, { useState } from 'react';
-import { Search, Info, Download, Bookmark } from 'lucide-react';
+import { Search, Info, Download, Bookmark, AlertTriangle } from 'lucide-react';
 import { TransactionSearch } from './TransactionSearch';
 import { TransactionFlow } from './TransactionFlow';
 import { TransactionDetails } from './TransactionDetails';
-import { mockTransactionData } from '../data/mockData';
 import { TransactionChain } from '../types';
+import { apiService } from '../services/api';
 
 export const TransactionTracer: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [transactionData, setTransactionData] = useState<TransactionChain | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [activeTransaction, setActiveTransaction] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
   
-  const handleSearch = (query: string) => {
+  const handleSearch = async (query: string) => {
     setSearchQuery(query);
     setIsLoading(true);
+    setError(null);
     
-    // Simulate API call delay
-    setTimeout(() => {
-      setTransactionData(mockTransactionData);
+    try {
+      const data = await apiService.traceTransaction(query);
+      setTransactionData(data);
+      if (data.transactions.length > 0) {
+        setActiveTransaction(data.transactions[0].id);
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to fetch transaction data');
+      setTransactionData(null);
+    } finally {
       setIsLoading(false);
-    }, 1500);
+    }
   };
   
   const handleTransactionSelect = (id: string) => {
@@ -46,6 +55,16 @@ export const TransactionTracer: React.FC = () => {
         </p>
         <TransactionSearch onSearch={handleSearch} isLoading={isLoading} />
       </div>
+      
+      {error && (
+        <div className="bg-red-900/30 border border-red-500 rounded-lg p-6 flex items-start space-x-3">
+          <AlertTriangle className="h-6 w-6 text-red-500 flex-shrink-0 mt-0.5" />
+          <div>
+            <h3 className="text-red-500 font-semibold mb-1">Error</h3>
+            <p className="text-red-200">{error}</p>
+          </div>
+        </div>
+      )}
       
       {isLoading && (
         <div className="flex justify-center items-center py-12">
