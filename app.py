@@ -1,8 +1,14 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from web3 import Web3
-from datetime import datetime
+from datetime import datetime, timezone
 import os
+
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
 
 app = Flask(__name__)
 CORS(app)
@@ -11,7 +17,7 @@ infura_key = os.getenv('INFURA_API_KEY', 'f00f456646ba47d681d17bb76b14d13d')
 web3 = Web3(Web3.HTTPProvider(f"https://mainnet.infura.io/v3/{infura_key}"))
 
 def format_timestamp(timestamp):
-    return datetime.utcfromtimestamp(timestamp).strftime('%Y-%m-%d %H:%M:%S UTC')
+    return datetime.fromtimestamp(timestamp, timezone.utc).strftime('%Y-%m-%d %H:%M:%S UTC')
 
 def is_contract(address):
     try:

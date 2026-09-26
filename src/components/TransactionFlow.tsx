@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { ArrowRight, Shuffle, AlertTriangle } from 'lucide-react';
-import { TransactionChain, Transaction } from '../types';
+import { TransactionChain } from '../types';
 
 interface TransactionFlowProps {
   transactionChain: TransactionChain;

@@ -1,10 +1,11 @@
 [project]
-name = "repl-nix-workspace"
+name = "chaintracer"
 version = "0.1.0"
-description = "Add your description here"
-requires-python = ">=3.11"
+description = "Cryptocurrency Transaction Tracing & Risk Assessment Tool"
+requires-python = ">=3.8"
 dependencies = [
-    "flask>=3.1.2",
-    "flask-cors>=6.0.1",
-    "web3>=7.14.0",
+    "flask>=3.0.0",
+    "flask-cors>=4.0.0",
+    "web3>=6.0.0",
+    "python-dotenv>=1.0.0",
 ]

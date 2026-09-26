@@ -1,21 +1,18 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { ethers } from 'ethers';
+import React, { createContext, useState, useEffect } from 'react';
 
-interface Web3ContextType {
+export interface Web3ContextType {
   account: string | null;
   connectWallet: () => Promise<void>;
   disconnectWallet: () => void;
   isConnected: boolean;
 }
 
-const Web3Context = createContext<Web3ContextType>({
+export const Web3Context = createContext<Web3ContextType>({
   account: null,
   connectWallet: async () => {},
   disconnectWallet: () => {},
   isConnected: false,
 });
-
-export const useWeb3 = () => useContext(Web3Context);
 
 export const Web3Provider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [account, setAccount] = useState<string | null>(null);
@@ -23,8 +20,8 @@ export const Web3Provider: React.FC<{ children: React.ReactNode }> = ({ children
   const connectWallet = async () => {
     if (typeof window.ethereum !== 'undefined') {
       try {
-        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-        setAccount(accounts[0]);
+        const accounts = (await window.ethereum.request({ method: 'eth_requestAccounts' })) as string[];
+        setAccount(accounts[0] || null);
       } catch (error) {
         console.error('Error connecting to MetaMask:', error);
       }
@@ -39,8 +36,9 @@ export const Web3Provider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     if (typeof window.ethereum !== 'undefined') {
-      window.ethereum.on('accountsChanged', (accounts: string[]) => {
-        setAccount(accounts[0] || null);
+      window.ethereum.on('accountsChanged', (...args: unknown[]) => {
+        const accounts = args[0] as string[];
+        setAccount(accounts?.[0] || null);
       });
     }
     return () => {

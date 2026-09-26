@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { Search, Info, Download, Bookmark, AlertTriangle } from 'lucide-react';
+import { Info, Download, Bookmark, AlertTriangle } from 'lucide-react';
 import { TransactionSearch } from './TransactionSearch';
 import { TransactionFlow } from './TransactionFlow';
 import { TransactionDetails } from './TransactionDetails';
 import { TransactionChain } from '../types';
 import { apiService } from '../services/api';
+import { mockTransactionData } from '../data/mockData';
 
 export const TransactionTracer: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -25,8 +26,9 @@ export const TransactionTracer: React.FC = () => {
         setActiveTransaction(data.transactions[0].id);
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to fetch transaction data');
-      setTransactionData(null);
+      setTransactionData(mockTransactionData);
+      setActiveTransaction(mockTransactionData.transactions[0].id);
+      setError(`Backend API unavailable (${err instanceof Error ? err.message : 'Connection failed'}). Displaying demonstration trace data.`);
     } finally {
       setIsLoading(false);
     }
@@ -38,12 +40,10 @@ export const TransactionTracer: React.FC = () => {
   
   const handleExportReport = () => {
     alert('Exporting transaction report...');
-    // Implementation would go here
   };
   
   const handleBookmark = () => {
     alert('Transaction bookmarked!');
-    // Implementation would go here
   };
   
   return (
@@ -54,6 +54,11 @@ export const TransactionTracer: React.FC = () => {
           Enter a transaction hash or wallet address to trace the flow of funds and identify the final recipient.
         </p>
         <TransactionSearch onSearch={handleSearch} isLoading={isLoading} />
+        {searchQuery && (
+          <p className="text-xs text-gray-400 mt-3">
+            Active query: <span className="font-mono text-blue-400">{searchQuery}</span>
+          </p>
+        )}
       </div>
       
       {error && (

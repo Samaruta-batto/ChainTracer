@@ -110,10 +110,10 @@ ChainTracer/
 │   ├── App.tsx              # Root component
 │   └── main.tsx             # Entry point
 ├── app.py                   # Flask backend entry
-├── templates/               # HTML templates
-├── .env                     # Environment variables
+├── .env.example             # Environment variables template
+├── requirements.txt         # Python dependencies
 ├── package.json             # Node dependencies
-├── pyproject.toml           # Python dependencies
+├── pyproject.toml           # Python project configuration
 ├── tailwind.config.js       # Tailwind config
 └── README.md                # This file
 ```
@@ -140,7 +140,7 @@ cd ChainTracer
 ```bash
 python -m venv venv
 source venv/bin/activate  # Windows: venv\Scripts\activate
-pip install flask flask-cors web3 python-dotenv
+pip install -r requirements.txt
 ```
 
 **Environment Variables**

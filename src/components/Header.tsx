@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Activity } from 'lucide-react';
-import { useWeb3 } from '../contexts/Web3Context';
+import { useWeb3 } from '../contexts/useWeb3';
 
 export const Header: React.FC = () => {
   const { account, connectWallet, disconnectWallet, isConnected } = useWeb3();

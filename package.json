@@ -1,5 +1,5 @@
 {
-  "name": "vite-react-typescript-starter",
+  "name": "chaintracer",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -10,9 +10,6 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@web3-react/core": "^8.2.3",
-    "@web3-react/metamask": "^8.2.4",
-    "ethers": "^6.11.1",
     "lucide-react": "^0.344.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
