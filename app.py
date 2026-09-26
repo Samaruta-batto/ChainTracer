@@ -16,15 +16,40 @@ CORS(app)
 infura_key = os.getenv('INFURA_API_KEY', 'f00f456646ba47d681d17bb76b14d13d')
 web3 = Web3(Web3.HTTPProvider(f"https://mainnet.infura.io/v3/{infura_key}"))
 
+def to_checksum(address):
+    if not address or not isinstance(address, str):
+        return address
+    try:
+        return Web3.to_checksum_address(address.strip())
+    except Exception:
+        return address.strip()
+
 def format_timestamp(timestamp):
     return datetime.fromtimestamp(timestamp, timezone.utc).strftime('%Y-%m-%d %H:%M:%S UTC')
 
 def is_contract(address):
-    try:
-        code = web3.eth.get_code(address)
-        return code != b''
-    except:
+    if not address:
         return False
+    try:
+        code = web3.eth.get_code(to_checksum(address))
+        return code != b'' and code != '0x'
+    except Exception:
+        return False
+
+def extract_transfer_events(receipt):
+    transfer_events = []
+    transfer_signature = web3.keccak(text="Transfer(address,address,uint256)").hex()
+    for log in receipt.get('logs', []):
+        if len(log.get('topics', [])) > 0 and log['topics'][0].hex() == transfer_signature:
+            if len(log['topics']) >= 3:
+                from_address = '0x' + log['topics'][1].hex()[-40:]
+                to_address = '0x' + log['topics'][2].hex()[-40:]
+                transfer_events.append({
+                    'from': from_address,
+                    'to': to_address,
+                    'token': log.get('address', '')
+                })
+    return transfer_events
 
 def calculate_risk_score(tx, receipt, is_to_contract, is_from_contract):
     score = 0
@@ -32,13 +57,13 @@ def calculate_risk_score(tx, receipt, is_to_contract, is_from_contract):
     if is_to_contract:
         score += 15
     
-    value_eth = web3.from_wei(tx['value'], 'ether')
+    value_eth = web3.from_wei(tx.get('value', 0), 'ether')
     if value_eth > 100:
         score += 20
     elif value_eth > 10:
         score += 10
     
-    if receipt['status'] == 0:
+    if receipt.get('status') == 0:
         score += 30
     
     return min(score, 100)
@@ -55,58 +80,43 @@ def health():
 @app.route('/api/transaction/<tx_hash>', methods=['GET'])
 def get_transaction(tx_hash):
     try:
-        tx = web3.eth.get_transaction(tx_hash)
-        receipt = web3.eth.get_transaction_receipt(tx_hash)
+        clean_tx_hash = tx_hash.strip()
+        tx = web3.eth.get_transaction(clean_tx_hash)
+        receipt = web3.eth.get_transaction_receipt(clean_tx_hash)
         block = web3.eth.get_block(tx['blockNumber'])
         
-        is_to_contract = is_contract(tx['to']) if tx['to'] else False
-        is_from_contract = is_contract(tx['from'])
+        is_to_contract = is_contract(tx.get('to')) if tx.get('to') else False
+        is_from_contract = is_contract(tx.get('from'))
         
         address_type = 'contract' if is_to_contract else 'wallet'
-        
-        value_eth = web3.from_wei(tx['value'], 'ether')
-        
+        value_eth = web3.from_wei(tx.get('value', 0), 'ether')
         risk_score = calculate_risk_score(tx, receipt, is_to_contract, is_from_contract)
         
         metadata = [
-            {'key': 'Gas Limit', 'value': str(tx['gas'])},
-            {'key': 'Gas Price', 'value': f"{web3.from_wei(tx['gasPrice'], 'gwei')} Gwei"},
-            {'key': 'Nonce', 'value': str(tx['nonce'])},
-            {'key': 'Block', 'value': str(tx['blockNumber'])},
-            {'key': 'Gas Used', 'value': f"{receipt['gasUsed']:,}"}
+            {'key': 'Gas Limit', 'value': str(tx.get('gas', 0))},
+            {'key': 'Gas Price', 'value': f"{web3.from_wei(tx.get('gasPrice', 0), 'gwei')} Gwei"},
+            {'key': 'Nonce', 'value': str(tx.get('nonce', 0))},
+            {'key': 'Block', 'value': str(tx.get('blockNumber', 0))},
+            {'key': 'Gas Used', 'value': f"{receipt.get('gasUsed', 0):,}"}
         ]
         
         transaction_data = {
-            'id': f'tx-{tx_hash[:10]}',
-            'hash': tx_hash,
-            'address': tx['to'] if tx['to'] else 'Contract Creation',
+            'id': f'tx-{clean_tx_hash[:10]}',
+            'hash': clean_tx_hash,
+            'address': tx.get('to') or 'Contract Creation',
             'addressType': address_type,
-            'status': 'confirmed' if receipt['status'] == 1 else 'failed',
+            'status': 'confirmed' if receipt.get('status') == 1 else 'failed',
             'amount': float(value_eth),
             'currency': 'ETH',
             'usdValue': 0,
             'timestamp': format_timestamp(block['timestamp']),
             'chain': 'ethereum',
-            'from': tx['from'],
-            'to': tx['to'] if tx['to'] else 'Contract Creation',
+            'from': tx.get('from', ''),
+            'to': tx.get('to') or 'Contract Creation',
             'riskScore': risk_score,
-            'metadata': metadata
+            'metadata': metadata,
+            'transferEvents': extract_transfer_events(receipt)
         }
-        
-        transfer_events = []
-        transfer_signature = web3.keccak(text="Transfer(address,address,uint256)").hex()
-        for log in receipt.logs:
-            if len(log['topics']) > 0 and log['topics'][0].hex() == transfer_signature:
-                if len(log['topics']) >= 3:
-                    from_address = '0x' + log['topics'][1].hex()[-40:]
-                    to_address = '0x' + log['topics'][2].hex()[-40:]
-                    transfer_events.append({
-                        'from': from_address,
-                        'to': to_address,
-                        'token': log['address']
-                    })
-        
-        transaction_data['transferEvents'] = transfer_events
         
         return jsonify(transaction_data)
         
@@ -116,12 +126,13 @@ def get_transaction(tx_hash):
 @app.route('/api/trace/<address_or_tx>', methods=['GET'])
 def trace_transaction(address_or_tx):
     try:
-        if address_or_tx.startswith('0x') and len(address_or_tx) == 66:
-            tx_hash = address_or_tx
+        clean_input = address_or_tx.strip()
+        if clean_input.startswith('0x') and len(clean_input) == 66:
+            tx_hash = clean_input
             tx = web3.eth.get_transaction(tx_hash)
             input_address = tx['from']
         else:
-            input_address = address_or_tx
+            input_address = clean_input
             tx_hash = None
         
         transactions = []
@@ -131,46 +142,47 @@ def trace_transaction(address_or_tx):
             receipt = web3.eth.get_transaction_receipt(tx_hash)
             block = web3.eth.get_block(tx['blockNumber'])
             
-            is_to_contract = is_contract(tx['to']) if tx['to'] else False
-            value_eth = web3.from_wei(tx['value'], 'ether')
+            is_to_contract = is_contract(tx.get('to')) if tx.get('to') else False
+            value_eth = web3.from_wei(tx.get('value', 0), 'ether')
             risk_score = calculate_risk_score(tx, receipt, is_to_contract, False)
             
             metadata = [
-                {'key': 'Gas Limit', 'value': str(tx['gas'])},
-                {'key': 'Gas Price', 'value': f"{web3.from_wei(tx['gasPrice'], 'gwei')} Gwei"},
-                {'key': 'Nonce', 'value': str(tx['nonce'])},
-                {'key': 'Block', 'value': str(tx['blockNumber'])},
-                {'key': 'Gas Used', 'value': f"{receipt['gasUsed']:,}"}
+                {'key': 'Gas Limit', 'value': str(tx.get('gas', 0))},
+                {'key': 'Gas Price', 'value': f"{web3.from_wei(tx.get('gasPrice', 0), 'gwei')} Gwei"},
+                {'key': 'Nonce', 'value': str(tx.get('nonce', 0))},
+                {'key': 'Block', 'value': str(tx.get('blockNumber', 0))},
+                {'key': 'Gas Used', 'value': f"{receipt.get('gasUsed', 0):,}"}
             ]
             
             transaction = {
                 'id': 'tx-1',
                 'hash': tx_hash,
-                'address': tx['to'] if tx['to'] else 'Contract Creation',
+                'address': tx.get('to') or 'Contract Creation',
                 'addressType': 'contract' if is_to_contract else 'wallet',
-                'status': 'confirmed' if receipt['status'] == 1 else 'failed',
+                'status': 'confirmed' if receipt.get('status') == 1 else 'failed',
                 'amount': float(value_eth),
                 'currency': 'ETH',
                 'usdValue': 0,
                 'timestamp': format_timestamp(block['timestamp']),
                 'chain': 'ethereum',
-                'from': tx['from'],
-                'to': tx['to'] if tx['to'] else 'Contract Creation',
+                'from': tx.get('from', ''),
+                'to': tx.get('to') or 'Contract Creation',
                 'riskScore': risk_score,
-                'metadata': metadata
+                'metadata': metadata,
+                'transferEvents': extract_transfer_events(receipt)
             }
             
             transactions.append(transaction)
-            final_recipient = tx['to'] if tx['to'] else tx['from']
+            final_recipient = tx.get('to') or tx.get('from', '')
             start_time = format_timestamp(block['timestamp'])
             end_time = start_time
         else:
             final_recipient = input_address
-            start_time = format_timestamp(int(datetime.now().timestamp()))
+            start_time = format_timestamp(int(datetime.now(timezone.utc).timestamp()))
             end_time = start_time
         
         chain_data = {
-            'id': f'chain-{address_or_tx[:10]}',
+            'id': f'chain-{clean_input[:10]}',
             'inputAddress': input_address,
             'startTime': start_time,
             'endTime': end_time,
@@ -186,10 +198,11 @@ def trace_transaction(address_or_tx):
 @app.route('/api/balance/<address>', methods=['GET'])
 def get_balance(address):
     try:
-        balance = web3.eth.get_balance(address)
+        checksummed_address = to_checksum(address)
+        balance = web3.eth.get_balance(checksummed_address)
         eth_balance = web3.from_wei(balance, 'ether')
         return jsonify({
-            'address': address,
+            'address': checksummed_address,
             'balance': float(eth_balance),
             'currency': 'ETH'
         })

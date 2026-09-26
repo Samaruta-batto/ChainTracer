@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Info, Download, Bookmark, AlertTriangle } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Info, Download, Bookmark, AlertTriangle, CheckCircle2 } from 'lucide-react';
 import { TransactionSearch } from './TransactionSearch';
 import { TransactionFlow } from './TransactionFlow';
 import { TransactionDetails } from './TransactionDetails';
@@ -13,16 +13,38 @@ export const TransactionTracer: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [activeTransaction, setActiveTransaction] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isBookmarked, setIsBookmarked] = useState(false);
+  const [notification, setNotification] = useState<string | null>(null);
+  const [showInfo, setShowInfo] = useState(false);
+
+  useEffect(() => {
+    if (transactionData) {
+      try {
+        const stored = localStorage.getItem('chaintracer_bookmarks');
+        const bookmarks: string[] = stored ? JSON.parse(stored) : [];
+        setIsBookmarked(bookmarks.includes(transactionData.id));
+      } catch {
+        setIsBookmarked(false);
+      }
+    }
+  }, [transactionData]);
+
+  const showToast = (message: string) => {
+    setNotification(message);
+    setTimeout(() => setNotification(null), 3000);
+  };
   
   const handleSearch = async (query: string) => {
-    setSearchQuery(query);
+    const trimmed = query.trim();
+    setSearchQuery(trimmed);
     setIsLoading(true);
     setError(null);
+    setShowInfo(false);
     
     try {
-      const data = await apiService.traceTransaction(query);
+      const data = await apiService.traceTransaction(trimmed);
       setTransactionData(data);
-      if (data.transactions.length > 0) {
+      if (data.transactions && data.transactions.length > 0) {
         setActiveTransaction(data.transactions[0].id);
       }
     } catch (err) {
@@ -39,15 +61,57 @@ export const TransactionTracer: React.FC = () => {
   };
   
   const handleExportReport = () => {
-    alert('Exporting transaction report...');
+    if (!transactionData) return;
+    try {
+      const jsonString = JSON.stringify(transactionData, null, 2);
+      const blob = new Blob([jsonString], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `chaintracer-report-${transactionData.id}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showToast('Report exported successfully');
+    } catch {
+      showToast('Failed to export report');
+    }
   };
   
   const handleBookmark = () => {
-    alert('Transaction bookmarked!');
+    if (!transactionData) return;
+    try {
+      const stored = localStorage.getItem('chaintracer_bookmarks');
+      const bookmarks: string[] = stored ? JSON.parse(stored) : [];
+      const id = transactionData.id;
+      let updated: string[];
+      if (bookmarks.includes(id)) {
+        updated = bookmarks.filter(b => b !== id);
+        setIsBookmarked(false);
+        showToast('Bookmark removed');
+      } else {
+        updated = [...bookmarks, id];
+        setIsBookmarked(true);
+        showToast('Transaction chain bookmarked');
+      }
+      localStorage.setItem('chaintracer_bookmarks', JSON.stringify(updated));
+    } catch {
+      setIsBookmarked(!isBookmarked);
+      showToast('Bookmark updated');
+    }
   };
   
   return (
     <div className="space-y-6">
+      {/* Toast Notification */}
+      {notification && (
+        <div className="fixed top-5 right-5 z-50 flex items-center space-x-2 bg-gray-800 border border-blue-500/50 text-white px-4 py-3 rounded-lg shadow-xl animate-fade-in">
+          <CheckCircle2 className="h-5 w-5 text-blue-400" />
+          <span className="text-sm">{notification}</span>
+        </div>
+      )}
+
       <div className="bg-gray-800 rounded-lg p-6 shadow-lg">
         <h2 className="text-2xl font-bold mb-4">Transaction Tracer</h2>
         <p className="text-gray-400 mb-6">
@@ -62,18 +126,19 @@ export const TransactionTracer: React.FC = () => {
       </div>
       
       {error && (
-        <div className="bg-red-900/30 border border-red-500 rounded-lg p-6 flex items-start space-x-3">
-          <AlertTriangle className="h-6 w-6 text-red-500 flex-shrink-0 mt-0.5" />
+        <div className="bg-red-900/30 border border-red-500/50 rounded-lg p-4 flex items-start space-x-3">
+          <AlertTriangle className="h-5 w-5 text-red-400 flex-shrink-0 mt-0.5" />
           <div>
-            <h3 className="text-red-500 font-semibold mb-1">Error</h3>
-            <p className="text-red-200">{error}</p>
+            <h3 className="text-red-400 font-semibold text-sm mb-0.5">Notice</h3>
+            <p className="text-red-200 text-sm">{error}</p>
           </div>
         </div>
       )}
       
       {isLoading && (
-        <div className="flex justify-center items-center py-12">
+        <div className="flex flex-col justify-center items-center py-12 space-y-4">
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+          <p className="text-gray-400 text-sm">Tracing on-chain transactions...</p>
         </div>
       )}
       
@@ -85,26 +150,52 @@ export const TransactionTracer: React.FC = () => {
               <div className="flex space-x-2">
                 <button 
                   onClick={handleBookmark}
-                  className="p-2 rounded-md hover:bg-gray-700 transition-colors"
-                  title="Bookmark this transaction"
+                  className={`p-2 rounded-md transition-colors ${
+                    isBookmarked ? 'bg-gray-700 text-yellow-400' : 'hover:bg-gray-700 text-gray-400 hover:text-white'
+                  }`}
+                  title={isBookmarked ? 'Remove bookmark' : 'Bookmark this transaction'}
                 >
-                  <Bookmark className="h-5 w-5 text-gray-400" />
+                  <Bookmark className={`h-5 w-5 ${isBookmarked ? 'fill-yellow-400' : ''}`} />
                 </button>
                 <button 
                   onClick={handleExportReport}
-                  className="p-2 rounded-md hover:bg-gray-700 transition-colors"
-                  title="Export transaction report"
+                  className="p-2 rounded-md hover:bg-gray-700 text-gray-400 hover:text-white transition-colors"
+                  title="Export transaction report (JSON)"
                 >
-                  <Download className="h-5 w-5 text-gray-400" />
+                  <Download className="h-5 w-5" />
                 </button>
                 <button 
-                  className="p-2 rounded-md hover:bg-gray-700 transition-colors"
-                  title="View transaction information"
+                  onClick={() => setShowInfo(!showInfo)}
+                  className={`p-2 rounded-md transition-colors ${
+                    showInfo ? 'bg-gray-700 text-blue-400' : 'hover:bg-gray-700 text-gray-400 hover:text-white'
+                  }`}
+                  title="View trace overview information"
                 >
-                  <Info className="h-5 w-5 text-gray-400" />
+                  <Info className="h-5 w-5" />
                 </button>
               </div>
             </div>
+
+            {showInfo && (
+              <div className="mb-4 p-4 bg-gray-900/80 rounded-lg border border-gray-700 text-sm space-y-2">
+                <h4 className="font-semibold text-blue-400">Trace Overview</h4>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                  <div>
+                    <span className="text-gray-400">Chain ID:</span>
+                    <p className="font-mono text-gray-200">{transactionData.id}</p>
+                  </div>
+                  <div>
+                    <span className="text-gray-400">Hops Identified:</span>
+                    <p className="font-mono text-gray-200">{transactionData.transactions.length}</p>
+                  </div>
+                  <div>
+                    <span className="text-gray-400">Final Recipient:</span>
+                    <p className="font-mono text-gray-200 truncate">{transactionData.finalRecipient}</p>
+                  </div>
+                </div>
+              </div>
+            )}
+
             <TransactionFlow 
               transactionChain={transactionData} 
               onTransactionSelect={handleTransactionSelect}

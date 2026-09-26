@@ -49,13 +49,20 @@ export const Documentation: React.FC = () => {
             <Code className="mr-2 h-6 w-6 text-green-500" />
             API Reference
           </h2>
-          <div className="bg-gray-800 p-6 rounded-lg">
-            <pre className="text-sm text-gray-400 overflow-x-auto">
-{`// Example API Usage
-const trace = await chaintracer.trace({
-  txHash: "0x123...",
-  includeRiskScore: true
-});`}
+          <div className="bg-gray-800 p-6 rounded-lg space-y-3">
+            <p className="text-sm text-gray-300">REST Endpoints available on port 3000:</p>
+            <pre className="text-xs text-gray-300 overflow-x-auto bg-gray-900 p-3 rounded font-mono">
+{`// 1. Trace transaction or wallet
+GET /api/trace/0x742d35Cc6634...
+
+// 2. Fetch transaction details & risk score
+GET /api/transaction/0x123f6816...
+
+// 3. Check wallet balance in ETH
+GET /api/balance/0x742d35Cc6634...
+
+// 4. API & Web3 health status
+GET /api/health`}
             </pre>
           </div>
         </section>

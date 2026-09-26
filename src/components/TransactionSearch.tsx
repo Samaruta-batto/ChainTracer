@@ -76,14 +76,20 @@ export const TransactionSearch: React.FC<TransactionSearchProps> = ({ onSearch, 
       <div className="flex flex-wrap gap-2">
         <button
           type="button"
-          onClick={() => setInputValue('0x742d35Cc6634C0532925a3b844Bc454e4438f44e')}
+          onClick={() => {
+            setSearchType('wallet');
+            setInputValue('0x742d35Cc6634C0532925a3b844Bc454e4438f44e');
+          }}
           className="text-xs bg-gray-700 hover:bg-gray-600 text-gray-300 px-3 py-1 rounded-full transition-colors"
         >
           Example: Ethereum Address
         </button>
         <button
           type="button"
-          onClick={() => setInputValue('0x123f681646d4a755815f9cb19e1acc8565a0c2ac1655a8f37a6v21ca967210b7')}
+          onClick={() => {
+            setSearchType('tx');
+            setInputValue('0x123f681646d4a755815f9cb19e1acc8565a0c2ac1655a0000a6e21ca967210b7');
+          }}
           className="text-xs bg-gray-700 hover:bg-gray-600 text-gray-300 px-3 py-1 rounded-full transition-colors"
         >
           Example: Transaction Hash

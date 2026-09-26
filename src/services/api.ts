@@ -1,56 +1,34 @@
+import { Transaction, TransactionChain } from '../types';
+
 const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
 
-export interface ApiTransaction {
-  id: string;
-  hash: string;
-  address: string;
-  addressType: 'wallet' | 'contract' | 'exchange' | 'bridge' | 'mixer' | 'final' | 'suspicious';
-  status: 'confirmed' | 'pending' | 'failed';
-  amount: number;
-  currency: string;
-  usdValue: number;
-  timestamp: string;
-  chain: string;
-  from: string;
-  to: string;
-  riskScore: number;
-  metadata: Array<{ key: string; value: string }>;
-  transferEvents?: Array<{ from: string; to: string; token: string }>;
-}
-
-export interface ApiTransactionChain {
-  id: string;
-  inputAddress: string;
-  startTime: string;
-  endTime: string;
-  finalRecipient: string;
-  transactions: ApiTransaction[];
-}
+export type ApiTransaction = Transaction;
+export type ApiTransactionChain = TransactionChain;
 
 export const apiService = {
-  async getTransaction(txHash: string): Promise<ApiTransaction> {
-    const response = await fetch(`${API_BASE_URL}/transaction/${txHash}`);
+  async getTransaction(txHash: string): Promise<Transaction> {
+    const response = await fetch(`${API_BASE_URL}/transaction/${encodeURIComponent(txHash)}`);
     if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error || 'Failed to fetch transaction');
+      const errorData = await response.json().catch(() => ({ error: `HTTP ${response.status}: Failed to fetch transaction` }));
+      throw new Error(errorData.error || 'Failed to fetch transaction');
     }
     return response.json();
   },
 
-  async traceTransaction(addressOrTx: string): Promise<ApiTransactionChain> {
-    const response = await fetch(`${API_BASE_URL}/trace/${addressOrTx}`);
+  async traceTransaction(addressOrTx: string): Promise<TransactionChain> {
+    const response = await fetch(`${API_BASE_URL}/trace/${encodeURIComponent(addressOrTx)}`);
     if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error || 'Failed to trace transaction');
+      const errorData = await response.json().catch(() => ({ error: `HTTP ${response.status}: Failed to trace transaction` }));
+      throw new Error(errorData.error || 'Failed to trace transaction');
     }
     return response.json();
   },
 
   async getBalance(address: string): Promise<{ address: string; balance: number; currency: string }> {
-    const response = await fetch(`${API_BASE_URL}/balance/${address}`);
+    const response = await fetch(`${API_BASE_URL}/balance/${encodeURIComponent(address)}`);
     if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error || 'Failed to fetch balance');
+      const errorData = await response.json().catch(() => ({ error: `HTTP ${response.status}: Failed to fetch balance` }));
+      throw new Error(errorData.error || 'Failed to fetch balance');
     }
     return response.json();
   },
@@ -58,7 +36,7 @@ export const apiService = {
   async health(): Promise<{ status: string; web3_connected: boolean; chain_id: number | null }> {
     const response = await fetch(`${API_BASE_URL}/health`);
     if (!response.ok) {
-      throw new Error('Failed to check API health');
+      throw new Error(`HTTP ${response.status}: Failed to check API health`);
     }
     return response.json();
   }

@@ -1,3 +1,10 @@
+export interface TransferEvent {
+  from: string;
+  to: string;
+  token: string;
+  value?: string | number;
+}
+
 export interface Transaction {
   id: string;
   hash: string;
@@ -13,6 +20,7 @@ export interface Transaction {
   to: string;
   riskScore: number;
   metadata: Array<{ key: string; value: string }>;
+  transferEvents?: TransferEvent[];
   bridgeInfo?: {
     name: string;
     sourceChain: string;

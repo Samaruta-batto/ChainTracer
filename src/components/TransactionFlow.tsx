@@ -96,14 +96,14 @@ export const TransactionFlow: React.FC<TransactionFlowProps> = ({
                       >
                         {getNodeIconByType(transaction.addressType) || (
                           <span className="text-xs font-mono text-white">
-                            {transaction.address.substring(0, 4)}
+                            {(transaction.address || '0x00').substring(0, 4)}
                           </span>
                         )}
                       </div>
-                      <div className={`text-xs mt-2 ${getChainColor(transaction.chain)}`}>
+                      <div className={`text-xs mt-2 capitalize ${getChainColor(transaction.chain)}`}>
                         {transaction.chain}
                       </div>
-                      <div className="text-xs text-gray-400 mt-1">
+                      <div className="text-xs text-gray-400 mt-1 capitalize">
                         {transaction.addressType}
                       </div>
                     </div>
@@ -112,7 +112,7 @@ export const TransactionFlow: React.FC<TransactionFlowProps> = ({
                     <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 translate-y-full 
                                    opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20 pointer-events-none">
                       <div className="bg-gray-900 text-white text-xs rounded p-2 shadow-lg border border-gray-700 w-48">
-                        <p className="font-semibold truncate">{transaction.address}</p>
+                        <p className="font-semibold truncate">{transaction.address || 'Unknown Address'}</p>
                         <p className="text-gray-400 mt-1">Amount: {transaction.amount} {transaction.currency}</p>
                       </div>
                     </div>

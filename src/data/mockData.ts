@@ -9,7 +9,7 @@ export const mockTransactionData: TransactionChain = {
   transactions: [
     {
       id: 'tx-1',
-      hash: '0x123f681646d4a755815f9cb19e1acc8565a0c2ac1655a0000a6v21ca967210b7',
+      hash: '0x123f681646d4a755815f9cb19e1acc8565a0c2ac1655a0000a6e21ca967210b7',
       address: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e',
       addressType: 'wallet',
       status: 'confirmed',

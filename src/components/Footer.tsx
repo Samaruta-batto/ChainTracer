@@ -10,10 +10,22 @@ export const Footer: React.FC = () => {
             <p className="text-gray-400">© 2025 ChainTracer. All rights reserved.</p>
           </div>
           <div className="flex space-x-4">
-            <a href="#" className="text-gray-400 hover:text-white transition-colors">
+            <a 
+              href="https://github.com/Samaruta-batto/ChainTracer" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-gray-400 hover:text-white transition-colors"
+              title="GitHub Repository"
+            >
               <Github className="h-5 w-5" />
             </a>
-            <a href="#" className="text-gray-400 hover:text-white transition-colors">
+            <a 
+              href="https://twitter.com" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-gray-400 hover:text-white transition-colors"
+              title="Twitter"
+            >
               <Twitter className="h-5 w-5" />
             </a>
           </div>

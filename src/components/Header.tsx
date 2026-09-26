@@ -7,7 +7,9 @@ export const Header: React.FC = () => {
   const { account, connectWallet, disconnectWallet, isConnected } = useWeb3();
   const location = useLocation();
 
-  const formatAddress = (address: string) => {
+  const formatAddress = (address?: string | null) => {
+    if (!address) return '';
+    if (address.length <= 10) return address;
     return `${address.substring(0, 6)}...${address.substring(address.length - 4)}`;
   };
 
